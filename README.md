@@ -2,6 +2,8 @@
 
 This resource stores key/value pairs similar to the "keyval" resource, however, it persists the key/value pairs in DynamoDB so they are not lost when pipelines are destroyed. This also allows values set in one pipeline to be used in another. This resource is written in C# and uses .NET 8 AOT to make the image as small as possible.
 
+https://hub.docker.com/r/wapplegate/dynamo-keyval-resource/tags
+
 ## Behavior
 
 ### Check
