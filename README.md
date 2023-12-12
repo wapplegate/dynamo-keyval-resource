@@ -1,6 +1,6 @@
 # Dynamo Keyval Resource
 
-This resource stores key/value pairs similar to the "keyval" resource, however, it persists the key/value pairs in DynamoDB so they are not lost when pipelines are destroyed. This also allows values set in one pipeline to be used in another.
+This resource stores key/value pairs similar to the "keyval" resource, however, it persists the key/value pairs in DynamoDB so they are not lost when pipelines are destroyed. This also allows values set in one pipeline to be used in another. This resource is written in C# and uses .NET 8 AOT to make the image as small as possible.
 
 ## Behavior
 
@@ -103,13 +103,15 @@ jobs:
                 echo "Artifact is ${artifact}"
 ```
 
-After your pipeline runs a few times, the DynamoDB table might look something like this:
+After the build job in the example pipeline above runs a few times, the DynamoDB table will have values similar to what is shown below:
 
 | application | created               | value |
 |-------------|-----------------------|-------|
 | `my-app`    | `12/12/2023 18:02:04` | `1.2` |
 | `my-app`    | `12/11/2023 12:06:39` | `1.1` |
 | `my-app`    | `12/10/2023 13:21:01` | `1.0` |
+
+You can then use these values in other jobs or pipelines.
 
 ## Development
 
