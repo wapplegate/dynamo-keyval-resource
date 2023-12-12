@@ -48,7 +48,6 @@ To set the key/value pair from a job you can do the following:
 ```yml
 jobs:
   - name: build
-    public: true
     plan:
       - in_parallel:
         - get: rust-build-image
