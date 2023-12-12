@@ -4,10 +4,6 @@ namespace Common;
 
 public class ConcoursePayload
 {
-    // public ConcoursePayload()
-    // {
-    // }
-
     [JsonPropertyName("params")]
     public Params? Params { get; set; }
 
@@ -26,10 +22,6 @@ public class Params
 
 public class SourceFields
 {
-    // public SourceFields()
-    // {
-    // }
-
     [JsonPropertyName("table_name")]
     public string? TableName { get; set; }
 
@@ -51,10 +43,6 @@ public class SourceFields
 
 public class Version
 {
-    // public Version()
-    // {
-    // }
-
     [JsonPropertyName("value")]
     public string? Value { get; set; }
 
