@@ -1,0 +1,69 @@
+resources:
+  - name: rust-build-image
+    type: registry-image
+    icon: docker
+    source:
+      repository: rust
+      tag: 1-buster
+  
+  - name: artifacts
+    type: dynamo-keyval-resource
+    icon: package-variant-closed
+    source:
+      table_name:    keyval-dynamo-table
+      partition_key: application
+      key:           my-app
+      access_key:    ((access-key))
+      secret_key:    ((secret-key))
+      region:        us-east-1
+
+  - name: version
+    type: semver
+    icon: aws
+    source:
+      driver:            s3
+      initial_version:   1.0.0
+      access_key_id:     ((access-key))
+      secret_access_key: ((secret-key))
+      bucket:            version-bucket
+      region_name:       us-east-1
+      key:               concourse/version
+
+resource_types:
+  - name: dynamo-keyval-resource
+    type: registry-image
+    source: 
+      repository: wapplegate/dynamo-keyval-resource
+      tag: latest
+
+jobs:
+  - name: build
+    public: true
+    plan:
+      - in_parallel:
+        - get: rust-build-image
+        - get: version
+          params: { pre: RC }
+      - task: build
+        image: rust-build-image
+        config:
+          platform: linux
+          inputs:
+            - name: version
+          run:
+            path: bash
+            args:
+              - -exc
+              - |
+                export ROOT_DIR=$PWD
+                version=$(cat ${ROOT_DIR}/version/number)
+                echo $version;
+                cd artifacts
+                echo "version-${version}" > version.txt
+          outputs:
+            - name: artifacts
+      - put: artifacts
+        inputs:
+          - artifacts
+        params:
+          file: artifacts/version.txt

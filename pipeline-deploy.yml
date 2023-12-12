@@ -1,0 +1,46 @@
+resources:
+  - name: rust-build-image
+    type: registry-image
+    icon: docker
+    source:
+      repository: rust
+      tag: 1-buster
+  
+  - name: artifacts
+    type: dynamo-keyval-resource
+    icon: package-variant-closed
+    source:
+      table_name:    keyval-dynamo-table
+      partition_key: application
+      key:           my-app
+      access_key:    ((access-key))
+      secret_key:    ((secret-key))
+      region:        us-east-1
+
+resource_types:
+  - name: dynamo-keyval-resource
+    type: registry-image
+    source: 
+      repository: wapplegate/dynamo-keyval-resource
+      tag: latest
+
+jobs:
+  - name: deploy
+    plan:
+      - in_parallel:
+        - get: rust-build-image
+        - get: artifacts
+      - task: deploy
+        image: rust-build-image
+        config:
+          platform: linux
+          inputs: 
+            - name: artifacts
+          run:
+            path: bash
+            args:
+              - -exc
+              - |
+                export ROOT_DIR=$PWD
+                artifact=$(cat ${ROOT_DIR}/artifacts/version.txt)
+                echo "Artifact is ${artifact}"
