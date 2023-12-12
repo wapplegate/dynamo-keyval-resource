@@ -106,11 +106,11 @@ jobs:
 
 After the build job in the example pipeline above runs a few times, the DynamoDB table will have values similar to what is shown below:
 
-| application | created               | value |
-|-------------|-----------------------|-------|
-| `my-app`    | `12/12/2023 18:02:04` | `1.2` |
-| `my-app`    | `12/11/2023 12:06:39` | `1.1` |
-| `my-app`    | `12/10/2023 13:21:01` | `1.0` |
+| application | created               | value         |
+|-------------|-----------------------|---------------|
+| `my-app`    | `12/12/2023 18:02:04` | `package-1.2` |
+| `my-app`    | `12/11/2023 12:06:39` | `package-1.1` |
+| `my-app`    | `12/10/2023 13:21:01` | `package-1.0` |
 
 You can then use these values in other jobs or pipelines.
 
