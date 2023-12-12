@@ -101,5 +101,7 @@ After your pipeline runs a few times, the DynamoDB table might look something li
 The following articles provide insight into how to create a custom Concourse resource:
 
 [Implementing Resource Types](https://concourse-ci.org/implementing-resource-types.html)
+
 [Writing a Custom Concourse Resource Overview](https://medium.com/@alexander.jansing/writing-a-custom-concourse-resource-overview-1ed6d2983e39)
+
 [Developing a Custom Concourse Resource](https://tanzu.vmware.com/content/blog/developing-a-custom-concourse-resource)
