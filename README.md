@@ -1,6 +1,20 @@
 # Dynamo Keyval Resource
 
-This resource stores key/value pairs similar to the "keyval" resource, however, it persists them in DynamoDB so they are not lost when pipelines are destroyed. This also allows values set in one pipeline to be used in another.
+This resource stores key/value pairs similar to the "keyval" resource, however, it persists the key/value pairs in DynamoDB so they are not lost when pipelines are destroyed. This also allows values set in one pipeline to be used in another.
+
+## Behavior
+
+### Check
+
+The `check` script of this resource queries all items from the DynamoDB table using the given partition key and returns all items that match.
+
+### In
+
+The `in` script of this resource retrieves the latest key and value returned from the `check` and makes it available in your job.
+
+### Out
+
+The `out` script of this resource creates a new item in the DynamoDB table and sets the partition key, created, and value fields.
 
 ## Usage
 
@@ -27,74 +41,75 @@ resource_types:
       tag: latest
 ```
 
-### Set a Key & Value
+### Setting a Value
 
-If you need to set the key/value pair from a job you can do it as follows:
+To set the key/value pair from a job you can do the following:
 
 ```yml
-- name: build
-  public: true
-  plan:
-    - in_parallel:
-      - get: rust-build-image
-      - get: version
-        params: { pre: RC }
-    - task: build
-      image: rust-build-image
-      config:
-        platform: linux
+jobs:
+  - name: build
+    public: true
+    plan:
+      - in_parallel:
+        - get: rust-build-image
+        - get: version
+      - task: build
+        image: rust-build-image
+        config:
+          platform: linux
+          inputs:
+            - name: version
+          run:
+            path: bash
+            args:
+              - -exc
+              - |
+                export ROOT_DIR=$PWD
+                version=$(cat ${ROOT_DIR}/version/number)
+                echo $version;
+                cd artifacts
+                echo "${version}" > version.txt # Creates and sets a file with the version number.
+          outputs:
+            - name: artifacts
+      - put: artifacts
         inputs:
-          - name: version
-        run:
-          path: bash
-          args:
-            - -exc
-            - |
-              export ROOT_DIR=$PWD
-              version=$(cat ${ROOT_DIR}/version/number)
-              echo $version;
-              cd artifacts
-              echo "${version}" > version.txt # Creates and sets a file with the version number.
-        outputs:
-          - name: artifacts
-    - put: artifacts
-      inputs:
-        - artifacts
+          - artifacts
 ```
 
-### Get a Key & Value
+### Getting a Value
 
-If you need to get the value for the configured key you can do it as follows:
+To get the value for the configured key you can do the following:
 
 ```yml
-- name: deploy
-  plan:
-    - in_parallel:
-      - get: rust-build-image
-      - get: artifacts
-    - task: deploy
-      image: rust-build-image
-      config:
-        platform: linux
-        inputs: 
-          - name: artifacts
-        run:
-          path: bash
-          args:
-            - -exc
-            - |
-              export ROOT_DIR=$PWD
-              artifact=$(cat ${ROOT_DIR}/artifacts/version.txt)
-              echo "Artifact is ${artifact}"
+jobs:
+  - name: deploy
+    plan:
+      - in_parallel:
+        - get: rust-build-image
+        - get: artifacts
+      - task: deploy
+        image: rust-build-image
+        config:
+          platform: linux
+          inputs: 
+            - name: artifacts
+          run:
+            path: bash
+            args:
+              - -exc
+              - |
+                export ROOT_DIR=$PWD
+                artifact=$(cat ${ROOT_DIR}/artifacts/version.txt)
+                echo "Artifact is ${artifact}"
 ```
 
 After your pipeline runs a few times, the DynamoDB table might look something like this:
 
-| application | created      | value |
-|-------------|--------------|-------|
-| `my-app`    | `12/12/2023` | `1.2` |
-| `my-app`    | `12/11/2023` | `1.1` |
-| `my-app`    | `12/10/2023` | `1.0` |
+| application | created               | value |
+|-------------|-----------------------|-------|
+| `my-app`    | `12/12/2023 18:02:04` | `1.2` |
+| `my-app`    | `12/11/2023 12:06:39` | `1.1` |
+| `my-app`    | `12/10/2023 13:21:01` | `1.0` |
 
 ## Development
 
