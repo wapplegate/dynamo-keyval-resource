@@ -10,7 +10,7 @@ The `check` script of this resource queries all items from the DynamoDB table us
 
 ### In
 
-The `in` script of this resource retrieves the latest key and value returned from the `check` and makes it available in your job.
+The `in` script of this resource retrieves the latest key and value returned from the `check` and makes it available in your task.
 
 ### Out
 
