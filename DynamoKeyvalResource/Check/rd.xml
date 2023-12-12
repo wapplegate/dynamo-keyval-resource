@@ -1,0 +1,6 @@
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <Assembly Name="AWSSDK.Core" Dynamic="Required All"></Assembly>
+    <Assembly Name="AWSSDK.DynamoDBv2" Dynamic="Required All"></Assembly>
+  </Application>
+</Directives>
